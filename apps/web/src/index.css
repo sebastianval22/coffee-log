@@ -1,0 +1,19 @@
+@import "tailwindcss";
+
+@theme {
+  --color-espresso: #3b2418;
+  --color-crema: #c8915f;
+  --color-milk: #faf6f1;
+}
+
+html,
+body,
+#root {
+  min-height: 100dvh;
+}
+
+body {
+  @apply bg-milk text-espresso antialiased;
+  padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom)
+    env(safe-area-inset-left);
+}
