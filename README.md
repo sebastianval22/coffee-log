@@ -9,7 +9,7 @@ A personal PWA for logging the coffees I try: snap a photo of the bag, let a vis
 - **Frontend:** Vite + React + TypeScript, Tailwind CSS, installable PWA (`vite-plugin-pwa`)
 - **Backend:** Supabase (Postgres with RLS, Storage, Auth, Edge Functions)
 - **Hosting:** Vercel
-- **Monorepo:** pnpm workspaces (Node 22, pinned per-repo via `.npmrc`)
+- **Monorepo:** pnpm workspaces (Node 22: `engines` in `package.json` + `.nvmrc`)
 
 ## Getting started
 
