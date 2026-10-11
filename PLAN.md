@@ -251,10 +251,11 @@ Monorepo con **pnpm workspaces**. Desarrollo local: Supabase CLI + Docker Deskto
 - [x] Monorepo pnpm local, Vite 8 + React 19 + TS + Tailwind 4, PWA (manifest, service worker, íconos iOS). Build OK. *(2026-10-10)*
 - [x] Supabase CLI como devDependency + `supabase init`. *(2026-10-10)*
 - [x] Skills de Matt Pocock instaladas como plugin a nivel de proyecto (`.claude/settings.json`). *(2026-10-10)*
-- [ ] Repo `coffee-log` en GitHub + primer commit.
-- [ ] `pnpm db:start` con Docker Desktop abierto; copiar publishable key a `apps/web/.env.local`.
-- [ ] Proyecto Supabase gratuito en la nube.
-- [ ] Deploy en Vercel; abrir en el iPhone y "Agregar a pantalla de inicio" (validar PWA desde el día 1).
+- [x] Repo `coffee-log` en GitHub (público) + primer commit. *(2026-10-10)*
+- [x] `pnpm db:start` con Docker Desktop abierto; copiar publishable key a `apps/web/.env.local`. *(2026-10-10)*
+- [x] Proyecto Supabase gratuito en la nube (Data API on, auto-expose off, auto-RLS on). *(2026-10-10)*
+- [x] Deploy en Vercel (Root `apps/web`, Node 22, env vars `VITE_SUPABASE_*`). *(2026-10-10)*
+- [x] PWA en el iPhone: agregada a pantalla de inicio, Supabase configurado. *(2026-10-10)*
 
 ### Fase 1 — MVP manual (1–2 fines de semana) → **ya lo uso a diario**
 - [ ] Auth con OTP por email.
