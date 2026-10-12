@@ -1,5 +1,10 @@
-import { PagePlaceholder } from '@/components/PagePlaceholder'
+import { OpenBagsStrip } from './OpenBagsStrip'
 
+// The history feed below the strip arrives with #8.
 export function HomePage() {
-  return <PagePlaceholder title="Inicio">Aquí verás tus bolsas abiertas y tu historial.</PagePlaceholder>
+  return (
+    <div className="flex flex-col gap-8">
+      <OpenBagsStrip />
+    </div>
+  )
 }

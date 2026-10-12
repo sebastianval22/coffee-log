@@ -1,20 +1,19 @@
 import { zodResolver } from '@hookform/resolvers/zod'
 import { ChevronDown } from 'lucide-react'
-import { useState, type ComponentProps, type ReactNode } from 'react'
+import { useState, type ReactNode } from 'react'
 import { Controller, useForm } from 'react-hook-form'
 import { CreatableCombobox } from '@/components/CreatableCombobox'
+import { Field, NativeSelect } from '@/components/form'
 import { PhotoPicker } from '@/components/PhotoPicker'
 import { RatingInput } from '@/components/RatingInput'
 import { TagInput } from '@/components/TagInput'
 import { Button } from '@/components/ui/button'
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible'
 import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
 import { useFindOrCreateRoaster, useRoasters } from '@/features/roasters/api'
 import type { ProcessedPhoto } from '@/lib/image'
 import { ORIGIN_COUNTRIES, PROCESS_LABELS, ROAST_LABELS } from '@/lib/labels'
-import { cn } from '@/lib/utils'
 import { useFlavorTagSuggestions, type BagFields } from './api'
 import { bagFormSchema, valuesToFields, type BagFormValues } from './bagFormValues'
 
@@ -176,26 +175,6 @@ export function BagForm({ defaultValues, storedPhotoPath, submitLabel, onSubmit 
   )
 }
 
-function Field({
-  label,
-  htmlFor,
-  error,
-  children,
-}: {
-  label: string
-  htmlFor?: string
-  error?: string
-  children: ReactNode
-}) {
-  return (
-    <div className="flex flex-col gap-1.5">
-      <Label htmlFor={htmlFor}>{label}</Label>
-      {children}
-      {error && <p className="text-sm text-destructive">{error}</p>}
-    </div>
-  )
-}
-
 function Section({ title, defaultOpen = false, children }: { title: string; defaultOpen?: boolean; children: ReactNode }) {
   return (
     <Collapsible defaultOpen={defaultOpen} className="rounded-xl border bg-card">
@@ -207,27 +186,6 @@ function Section({ title, defaultOpen = false, children }: { title: string; defa
     </Collapsible>
   )
 }
-
-const NativeSelect = ({
-  options,
-  className,
-  ...props
-}: ComponentProps<'select'> & { options: Record<string, string> }) => (
-  <select
-    className={cn(
-      'h-9 w-full rounded-md border border-input bg-transparent px-3 text-base shadow-xs md:text-sm',
-      className,
-    )}
-    {...props}
-  >
-    <option value="">—</option>
-    {Object.entries(options).map(([value, label]) => (
-      <option key={value} value={value}>
-        {label}
-      </option>
-    ))}
-  </select>
-)
 
 function YesNo({ value, onChange }: { value: boolean | null; onChange: (value: boolean | null) => void }) {
   const option = (label: string, v: boolean) => (
