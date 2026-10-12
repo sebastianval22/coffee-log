@@ -13,7 +13,8 @@
     "db:stop": "supabase stop",
     "db:reset": "supabase db reset",
     "db:test": "supabase test db",
-    "db:types": "supabase gen types typescript --local > apps/web/src/lib/database.types.ts && oxfmt apps/web/src/lib/database.types.ts"
+    "db:types": "supabase gen types typescript --local > apps/web/src/lib/database.types.ts && oxfmt apps/web/src/lib/database.types.ts",
+    "test": "pnpm -r test"
   },
   "devDependencies": {
     "oxfmt": "^0.72.0",

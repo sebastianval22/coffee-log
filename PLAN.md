@@ -268,7 +268,7 @@ Spec: [`docs/specs/phase-1.md`](docs/specs/phase-1.md) · Tickets: GitHub Issues
 - [x] Foto: captura, compresión (full + thumb) y subida.
 - [x] Bolsas: registrar, detalle, editar, borrar.
 - [x] Tazas: "+1" con deshacer, "Abiertas ahora", catas con detalle.
-- [ ] Terminar bolsa: hoja de término + aviso "¿Ya terminaste?".
+- [x] Terminar bolsa: hoja de término + aviso "¿Ya terminaste?".
 - [ ] Visitas a cafeterías: registrar, detalle, editar, borrar.
 - [ ] Inicio: historial (`history_feed`).
 - [ ] Cafés y Cafeterías: grillas, búsqueda full-text, filtros (proceso, tostión, rating, fechas), orden.
