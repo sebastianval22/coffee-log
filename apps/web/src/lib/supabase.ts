@@ -4,6 +4,10 @@ import type { Database } from './database.types'
 const url = import.meta.env.VITE_SUPABASE_URL
 const publishableKey = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY
 
-export const isSupabaseConfigured = Boolean(url && publishableKey)
+if (!url || !publishableKey) {
+  throw new Error(
+    'Missing VITE_SUPABASE_URL or VITE_SUPABASE_PUBLISHABLE_KEY (see apps/web/.env.example).',
+  )
+}
 
-export const supabase = isSupabaseConfigured ? createClient<Database>(url, publishableKey) : null
+export const supabase = createClient<Database>(url, publishableKey)
