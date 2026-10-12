@@ -1,4 +1,4 @@
-import { Plus } from 'lucide-react'
+import { Coffee } from 'lucide-react'
 import type { ReactNode } from 'react'
 import { toast } from 'sonner'
 import { Button } from '@/components/ui/button'
@@ -14,7 +14,7 @@ export function QuickCupButton({
   className,
   children = (
     <>
-      <Plus /> 1
+      <Coffee /> +1
     </>
   ),
 }: {

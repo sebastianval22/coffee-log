@@ -49,7 +49,7 @@ function OpenBagCard({ bag }: { bag: BagSummary }) {
           </span>
         </div>
       </Link>
-      <QuickCupButton bagId={bag.id!} className="h-12 w-14 shrink-0 rounded-xl text-base" />
+      <QuickCupButton bagId={bag.id!} className="h-12 shrink-0 gap-1.5 rounded-xl px-3.5 text-base" />
     </div>
   )
 }

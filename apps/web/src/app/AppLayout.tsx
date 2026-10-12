@@ -1,28 +1,41 @@
-import { Coffee, House, LogOut, Plus, Store, type LucideIcon } from 'lucide-react'
-import { Link, NavLink, Outlet } from 'react-router'
+import { Bean, House, Plus, Settings, Store, type LucideIcon } from 'lucide-react'
+import { useEffect, useRef } from 'react'
+import { Link, NavLink, Outlet, useLocation } from 'react-router'
 import { Button } from '@/components/ui/button'
-import { supabase } from '@/lib/supabase'
 import { cn } from '@/lib/utils'
 
 type NavItem = { to: string; label: string; icon: LucideIcon }
 
-const NAV: NavItem[] = [
-  { to: '/', label: 'Inicio', icon: House },
-  { to: '/bags', label: 'Cafés', icon: Coffee },
-  { to: '/visits', label: 'Cafeterías', icon: Store },
-]
+const HOME: NavItem = { to: '/', label: 'Inicio', icon: House }
+const BAGS: NavItem = { to: '/bags', label: 'Cafés', icon: Bean }
+const VISITS: NavItem = { to: '/visits', label: 'Cafeterías', icon: Store }
+const SETTINGS: NavItem = { to: '/settings', label: 'Ajustes', icon: Settings }
+const NEW: NavItem = { to: '/new', label: 'Registrar', icon: Plus }
 
+/**
+ * App shell pinned to the screen (`fixed inset-0`): only <main> scrolls. When the whole
+ * document scrolled, iOS kept re-positioning the fixed bars while it settled the viewport
+ * height, so the bottom bar opened "too high" until the first scroll.
+ */
 export function AppLayout() {
+  const main = useRef<HTMLElement>(null)
+  const { pathname } = useLocation()
+
+  // The scroll container is <main>, not the window, so reset it on navigation ourselves.
+  useEffect(() => {
+    main.current?.scrollTo(0, 0)
+  }, [pathname])
+
   return (
-    <div className="min-h-dvh">
-      <header className="sticky top-0 z-10 border-b bg-background/90 pt-[env(safe-area-inset-top)] backdrop-blur">
+    <div className="fixed inset-0 flex flex-col">
+      <header className="shrink-0 border-b bg-background/95 pt-[env(safe-area-inset-top)] backdrop-blur">
         <div className="mx-auto flex h-14 max-w-6xl items-center gap-6 px-4">
           <Link to="/" className="flex items-center gap-2 font-bold">
             <img src="/logo.svg" alt="" className="size-8 rounded-lg" />
             Coffee Log
           </Link>
           <nav className="hidden items-center gap-1 md:flex">
-            {NAV.map((item) => (
+            {[HOME, BAGS, VISITS].map((item) => (
               <NavLink
                 key={item.to}
                 to={item.to}
@@ -38,26 +51,25 @@ export function AppLayout() {
               </NavLink>
             ))}
           </nav>
-          <div className="ml-auto flex items-center gap-2">
-            <Button asChild className="hidden md:inline-flex">
+          <div className="ml-auto hidden items-center gap-2 md:flex">
+            <Button asChild>
               <Link to="/new">
                 <Plus /> Registrar
               </Link>
             </Button>
-            <Button
-              variant="ghost"
-              size="icon"
-              aria-label="Cerrar sesión"
-              onClick={() => supabase.auth.signOut()}
-            >
-              <LogOut />
+            <Button asChild variant="ghost" size="icon" aria-label="Ajustes">
+              <Link to="/settings">
+                <Settings />
+              </Link>
             </Button>
           </div>
         </div>
       </header>
 
-      <main className="mx-auto max-w-6xl px-4 py-6 pb-[calc(5rem+env(safe-area-inset-bottom))] md:pb-10">
-        <Outlet />
+      <main ref={main} className="flex-1 overflow-y-auto overscroll-contain">
+        <div className="mx-auto max-w-6xl px-4 py-6 md:pb-10">
+          <Outlet />
+        </div>
       </main>
 
       <BottomNav />
@@ -65,25 +77,25 @@ export function AppLayout() {
   )
 }
 
+/** Phone tab bar: Registrar sits in the middle of five slots. */
 function BottomNav() {
-  const items: NavItem[] = [NAV[0], NAV[1], { to: '/new', label: 'Registrar', icon: Plus }, NAV[2]]
   return (
-    <nav className="fixed inset-x-0 bottom-0 z-10 border-t bg-background/95 pb-[env(safe-area-inset-bottom)] backdrop-blur md:hidden">
-      <ul className="grid h-16 grid-cols-4">
-        {items.map((item) => (
+    <nav className="shrink-0 border-t bg-background/95 pb-[env(safe-area-inset-bottom)] backdrop-blur md:hidden">
+      <ul className="grid h-16 grid-cols-5">
+        {[HOME, BAGS, NEW, VISITS, SETTINGS].map((item) => (
           <li key={item.to}>
             <NavLink
               to={item.to}
               end={item.to === '/'}
               className={({ isActive }) =>
                 cn(
-                  'flex h-full flex-col items-center justify-center gap-1 text-xs text-muted-foreground',
+                  'flex h-full flex-col items-center justify-center gap-1 text-[11px] text-muted-foreground',
                   isActive && 'text-foreground',
                 )
               }
             >
-              {item.to === '/new' ? (
-                <span className="flex size-9 items-center justify-center rounded-full bg-primary text-primary-foreground">
+              {item === NEW ? (
+                <span className="flex size-10 items-center justify-center rounded-full bg-primary text-primary-foreground shadow-md">
                   <item.icon className="size-5" />
                 </span>
               ) : (

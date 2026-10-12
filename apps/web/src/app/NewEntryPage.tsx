@@ -1,8 +1,8 @@
-import { Coffee, Store, type LucideIcon } from 'lucide-react'
+import { Bean, Store, type LucideIcon } from 'lucide-react'
 import { Link } from 'react-router'
 
 const OPTIONS: { to: string; title: string; description: string; icon: LucideIcon }[] = [
-  { to: '/new/bag', title: 'Abrí una bolsa', description: 'Foto del empaque y sus datos', icon: Coffee },
+  { to: '/new/bag', title: 'Abrí una bolsa', description: 'Foto del empaque y sus datos', icon: Bean },
   { to: '/new/visit', title: 'Estoy en una cafetería', description: 'Foto de lo que te sirvieron', icon: Store },
 ]
 
