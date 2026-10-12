@@ -244,6 +244,15 @@ otp_expiry = 3600
 # admin_email = "admin@email.com"
 # sender_name = "Admin"
 
+# Email OTP (6-digit code, no magic link). New users get "confirmation", existing ones "magic_link".
+[auth.email.template.magic_link]
+subject = "Tu código de Coffee Log"
+content_path = "./supabase/templates/otp.html"
+
+[auth.email.template.confirmation]
+subject = "Tu código de Coffee Log"
+content_path = "./supabase/templates/otp.html"
+
 # Uncomment to customize email template
 # [auth.email.template.invite]
 # subject = "You have been invited"
