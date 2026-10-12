@@ -3,9 +3,10 @@ import type { ProcessedPhoto } from './image'
 import { supabase } from './supabase'
 
 // Storage layout (private bucket, RLS by first folder = user id):
-//   photos/{userId}/{bags|visits}/{entityId}/full.jpg
-//   photos/{userId}/{bags|visits}/{entityId}/thumb.jpg
-// The database stores the full.jpg path; the thumbnail sits next to it.
+//   photos/{userId}/{bags|visits}/{entityId}/{photoId}/full.jpg
+//   photos/{userId}/{bags|visits}/{entityId}/{photoId}/thumb.jpg
+// The database stores the full.jpg path; the thumbnail sits next to it. Every new photo gets a
+// fresh photoId, so a replaced photo never collides with cached copies of the old one.
 
 const BUCKET = 'photos'
 const SIGNED_URL_TTL_SECONDS = 60 * 60
@@ -13,18 +14,19 @@ const SIGNED_URL_TTL_SECONDS = 60 * 60
 export type PhotoKind = 'bags' | 'visits'
 export type PhotoVariant = 'full' | 'thumb'
 
-export function photoPath(userId: string, kind: PhotoKind, entityId: string) {
-  return `${userId}/${kind}/${entityId}/full.jpg`
+/** A new, unique path for a photo of this entity. */
+export function newPhotoPath(userId: string, kind: PhotoKind, entityId: string) {
+  return `${userId}/${kind}/${entityId}/${crypto.randomUUID()}/full.jpg`
 }
 
 export function variantPath(photoPath: string, variant: PhotoVariant) {
   return variant === 'full' ? photoPath : photoPath.replace(/full\.jpg$/, 'thumb.jpg')
 }
 
-/** Uploads both sizes (overwriting any previous photo) and returns the path to store in the row. */
+/** Uploads both sizes and returns the path to store in the row. */
 export async function uploadPhoto(path: string, photo: ProcessedPhoto): Promise<string> {
   const bucket = supabase.storage.from(BUCKET)
-  const options = { contentType: 'image/jpeg', upsert: true, cacheControl: '31536000' }
+  const options = { contentType: 'image/jpeg', cacheControl: '31536000' }
   const results = await Promise.all([
     bucket.upload(path, photo.full, options),
     bucket.upload(variantPath(path, 'thumb'), photo.thumb, options),

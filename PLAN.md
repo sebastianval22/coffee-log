@@ -266,7 +266,7 @@ Spec: [`docs/specs/phase-1.md`](docs/specs/phase-1.md) · Tickets: GitHub Issues
 - [x] Migraciones: enums, `roasters`, `cafes`, `bags`, `cups`, `cafe_visits`, RLS, bucket `photos`, búsqueda, vistas + pgTAP de RLS.
 - [x] Auth con OTP por email + esqueleto de la app (router, layout, shadcn/ui, TanStack Query).
 - [x] Foto: captura, compresión (full + thumb) y subida.
-- [ ] Bolsas: registrar, detalle, editar, borrar.
+- [x] Bolsas: registrar, detalle, editar, borrar.
 - [ ] Tazas: "+1" con deshacer, "Abiertas ahora", catas con detalle.
 - [ ] Terminar bolsa: hoja de término + aviso "¿Ya terminaste?".
 - [ ] Visitas a cafeterías: registrar, detalle, editar, borrar.

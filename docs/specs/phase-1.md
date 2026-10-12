@@ -31,7 +31,7 @@ cafes       (id, user_id, name, city, address, created_at)            unique (us
 bags (
   id, user_id,
   name            text not null,
-  photo_path      text not null,          -- {user_id}/bags/{id}/full.jpg (thumb.jpg next to it)
+  photo_path      text not null,          -- {user_id}/bags/{id}/{photo_id}/full.jpg (thumb.jpg next to it; new photo_id per upload)
   roaster_id      → roasters on delete set null,
   origin_country, origin_region, farm, varieties text[], process process_t, roast_level roast_t,
   altitude_m      int check 0..3500,
@@ -57,7 +57,7 @@ cafe_visits (
   id, user_id,
   cafe_id         → cafes on delete restrict, not null,
   drink           method_t not null,
-  photo_path      text not null,           -- {user_id}/visits/{id}/full.jpg
+  photo_path      text not null,           -- {user_id}/visits/{id}/{photo_id}/full.jpg
   visited_at      timestamptz not null default now(),
   rating numeric(2,1), flavor_tags text[], notes text,
   coffee_name text, roaster_id → roasters on delete set null, origin_country text, process process_t,
