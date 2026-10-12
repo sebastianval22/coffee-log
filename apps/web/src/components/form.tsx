@@ -1,4 +1,6 @@
+import { ChevronDown } from 'lucide-react'
 import type { ComponentProps, ReactNode } from 'react'
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible'
 import { Label } from '@/components/ui/label'
 import { cn } from '@/lib/utils'
 
@@ -43,5 +45,18 @@ export function NativeSelect({
         </option>
       ))}
     </select>
+  )
+}
+
+/** A collapsible group of optional fields. */
+export function Section({ title, defaultOpen = false, children }: { title: string; defaultOpen?: boolean; children: ReactNode }) {
+  return (
+    <Collapsible defaultOpen={defaultOpen} className="rounded-xl border bg-card">
+      <CollapsibleTrigger className="group flex w-full items-center justify-between px-4 py-3 font-medium">
+        {title}
+        <ChevronDown className="size-4 transition-transform group-data-[state=open]:rotate-180" />
+      </CollapsibleTrigger>
+      <CollapsibleContent className="flex flex-col gap-4 px-4 pb-4">{children}</CollapsibleContent>
+    </Collapsible>
   )
 }

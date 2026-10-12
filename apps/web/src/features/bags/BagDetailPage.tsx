@@ -1,21 +1,10 @@
-import { ArrowLeft, CircleCheck, Pencil, RotateCcw, Trash2 } from 'lucide-react'
+import { ArrowLeft, CircleCheck, Pencil, RotateCcw } from 'lucide-react'
 import type { ReactNode } from 'react'
 import { Link, useNavigate, useParams } from 'react-router'
 import { toast } from 'sonner'
-import { RatingStars } from '@/components/RatingInput'
 import { StoredPhoto } from '@/components/StoredPhoto'
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-  AlertDialogTrigger,
-} from '@/components/ui/alert-dialog'
-import { Badge } from '@/components/ui/badge'
+import { Verdict } from '@/components/Verdict'
+import { ConfirmDeleteButton } from '@/components/ConfirmDeleteButton'
 import { Button } from '@/components/ui/button'
 import { CupsSection } from '@/features/cups/CupsSection'
 import { errorMessage } from '@/lib/errors'
@@ -76,7 +65,18 @@ function BagDetail({ bag }: { bag: BagSummary }) {
             </p>
           </header>
 
-          <Verdict bag={bag} />
+          <Verdict
+            rating={bag.rating}
+            tags={bag.flavor_tags}
+            notes={bag.notes}
+            footer={
+              bag.would_buy_again === null
+                ? undefined
+                : bag.would_buy_again
+                  ? 'La compraría de nuevo'
+                  : 'No la compraría de nuevo'
+            }
+          />
 
           <dl className="grid grid-cols-[auto_1fr] gap-x-4 gap-y-2 text-sm">
             {facts
@@ -118,38 +118,6 @@ function BagDetail({ bag }: { bag: BagSummary }) {
   )
 }
 
-function Verdict({ bag }: { bag: BagSummary }) {
-  const hasVerdict =
-    bag.rating !== null || (bag.flavor_tags?.length ?? 0) > 0 || bag.notes || bag.would_buy_again !== null
-  if (!hasVerdict) return null
-
-  return (
-    <section className="flex flex-col gap-2 rounded-xl border bg-card p-4">
-      {bag.rating !== null && (
-        <div className="flex items-center gap-2">
-          <RatingStars value={bag.rating} />
-          <span className="text-sm font-medium">{bag.rating.toFixed(1)}</span>
-        </div>
-      )}
-      {(bag.flavor_tags?.length ?? 0) > 0 && (
-        <div className="flex flex-wrap gap-1.5">
-          {bag.flavor_tags!.map((tag) => (
-            <Badge key={tag} variant="secondary">
-              {tag}
-            </Badge>
-          ))}
-        </div>
-      )}
-      {bag.notes && <p className="text-sm whitespace-pre-line">{bag.notes}</p>}
-      {bag.would_buy_again !== null && (
-        <p className="text-sm text-muted-foreground">
-          {bag.would_buy_again ? 'La compraría de nuevo' : 'No la compraría de nuevo'}
-        </p>
-      )}
-    </section>
-  )
-}
-
 function ReopenBagButton({ bag }: { bag: BagSummary }) {
   const patchBag = usePatchBag()
   return (
@@ -183,27 +151,11 @@ function DeleteBagButton({ bag }: { bag: BagSummary }) {
   }
 
   return (
-    <AlertDialog>
-      <AlertDialogTrigger asChild>
-        <Button variant="outline" className="flex-1 text-destructive hover:text-destructive">
-          <Trash2 /> Borrar
-        </Button>
-      </AlertDialogTrigger>
-      <AlertDialogContent>
-        <AlertDialogHeader>
-          <AlertDialogTitle>¿Borrar “{bag.name}”?</AlertDialogTitle>
-          <AlertDialogDescription>
-            Se borran también su foto y {bag.cup_count === 1 ? 'la taza registrada' : `las ${bag.cup_count} tazas registradas`}.
-            No se puede deshacer.
-          </AlertDialogDescription>
-        </AlertDialogHeader>
-        <AlertDialogFooter>
-          <AlertDialogCancel>Cancelar</AlertDialogCancel>
-          <AlertDialogAction variant="destructive" onClick={confirm} disabled={deleteBag.isPending}>
-            Borrar
-          </AlertDialogAction>
-        </AlertDialogFooter>
-      </AlertDialogContent>
-    </AlertDialog>
+    <ConfirmDeleteButton
+      title={`¿Borrar “${bag.name}”?`}
+      description={`Se borran también su foto y ${bag.cup_count === 1 ? 'la taza registrada' : `las ${bag.cup_count} tazas registradas`}. No se puede deshacer.`}
+      onConfirm={confirm}
+      disabled={deleteBag.isPending}
+    />
   )
 }

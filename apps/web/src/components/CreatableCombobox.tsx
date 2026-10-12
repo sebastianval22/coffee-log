@@ -15,6 +15,10 @@ import { cn } from '@/lib/utils'
 
 export type ComboboxItem = { id: string; label: string; detail?: string | null }
 
+// Commas separate name and detail when typing ("La Ciudad, Santiago"); compare them as spaces.
+const searchable = (value: string) => normalizeName(value.replace(/,/g, ' '))
+const itemText = (item: ComboboxItem) => `${item.label} ${item.detail ?? ''}`
+
 type Props = {
   id?: string
   items: ComboboxItem[]
@@ -43,7 +47,9 @@ export function CreatableCombobox({
   const [creating, setCreating] = useState(false)
   const selected = items.find((item) => item.id === value)
   const typed = search.trim()
-  const exactMatch = items.some((item) => normalizeName(item.label) === normalizeName(typed))
+  const exactMatch = items.some(
+    (item) => searchable(item.label) === searchable(typed) || searchable(itemText(item)) === searchable(typed),
+  )
 
   async function create() {
     setCreating(true)
@@ -76,9 +82,7 @@ export function CreatableCombobox({
         </PopoverTrigger>
         <PopoverContent className="w-(--radix-popover-trigger-width) p-0" align="start">
           <Command
-            filter={(itemValue, query) =>
-              normalizeName(itemValue).includes(normalizeName(query)) ? 1 : 0
-            }
+            filter={(itemValue, query) => (searchable(itemValue).includes(searchable(query)) ? 1 : 0)}
           >
             <CommandInput placeholder={searchPlaceholder} value={search} onValueChange={setSearch} />
             <CommandList>
@@ -87,7 +91,7 @@ export function CreatableCombobox({
                 {items.map((item) => (
                   <CommandItem
                     key={item.id}
-                    value={`${item.label} ${item.detail ?? ''}`}
+                    value={itemText(item)}
                     onSelect={() => {
                       onChange(item.id)
                       setOpen(false)

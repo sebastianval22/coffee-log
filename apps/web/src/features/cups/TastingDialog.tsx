@@ -17,7 +17,7 @@ import {
 } from '@/components/ui/dialog'
 import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
-import { useFlavorTagSuggestions } from '@/features/bags/api'
+import { useFlavorTagSuggestions } from '@/features/tags/api'
 import type { Enums } from '@/lib/database.types'
 import { errorMessage } from '@/lib/errors'
 import { METHOD_LABELS } from '@/lib/labels'
