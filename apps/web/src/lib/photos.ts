@@ -43,6 +43,54 @@ export async function deletePhoto(path: string) {
   if (error) throw error
 }
 
+/**
+ * Saves a new row that owns a photo. The id is generated here so the photo can go to its
+ * final path before the insert; if the insert fails, the uploaded files are removed.
+ */
+export async function createWithPhoto(
+  kind: PhotoKind,
+  photo: ProcessedPhoto,
+  insert: (id: string, photoPath: string) => PromiseLike<{ error: unknown }>,
+): Promise<string> {
+  const { data: auth } = await supabase.auth.getUser()
+  if (!auth.user) throw new Error('Sesión expirada. Vuelve a iniciar sesión.')
+
+  const id = crypto.randomUUID()
+  const path = await uploadPhoto(newPhotoPath(auth.user.id, kind, id), photo)
+  const { error } = await insert(id, path)
+  if (error) {
+    await deletePhoto(path).catch(() => {})
+    throw error
+  }
+  return id
+}
+
+/**
+ * Updates a row that owns a photo. With a new photo: upload to a fresh path, point the row at
+ * it, then remove the old files (a fresh path can't be served from a stale cache).
+ */
+export async function updateWithPhoto(
+  kind: PhotoKind,
+  entityId: string,
+  currentPath: string,
+  photo: ProcessedPhoto | null,
+  update: (newPhotoPath: string | null) => PromiseLike<{ error: unknown }>,
+): Promise<void> {
+  if (!photo) {
+    const { error } = await update(null)
+    if (error) throw error
+    return
+  }
+  const userId = currentPath.split('/')[0]
+  const path = await uploadPhoto(newPhotoPath(userId, kind, entityId), photo)
+  const { error } = await update(path)
+  if (error) {
+    await deletePhoto(path).catch(() => {})
+    throw error
+  }
+  await deletePhoto(currentPath).catch(() => {})
+}
+
 export function signedUrlQueryKey(path: string, variant: PhotoVariant) {
   return ['photo-url', variantPath(path, variant)] as const
 }

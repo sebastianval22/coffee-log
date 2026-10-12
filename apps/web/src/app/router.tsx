@@ -7,7 +7,9 @@ import { EditBagPage } from '@/features/bags/EditBagPage'
 import { NewBagPage } from '@/features/bags/NewBagPage'
 import { HomePage } from '@/features/home/HomePage'
 import { SettingsPage } from '@/features/settings/SettingsPage'
+import { EditVisitPage } from '@/features/visits/EditVisitPage'
 import { NewVisitPage } from '@/features/visits/NewVisitPage'
+import { VisitDetailPage } from '@/features/visits/VisitDetailPage'
 import { VisitsPage } from '@/features/visits/VisitsPage'
 import { AppLayout } from './AppLayout'
 import { NewEntryPage } from './NewEntryPage'
@@ -26,6 +28,8 @@ export const router = createBrowserRouter([
           { path: 'bags/:id', element: <BagDetailPage /> },
           { path: 'bags/:id/edit', element: <EditBagPage /> },
           { path: 'visits', element: <VisitsPage /> },
+          { path: 'visits/:id', element: <VisitDetailPage /> },
+          { path: 'visits/:id/edit', element: <EditVisitPage /> },
           { path: 'settings', element: <SettingsPage /> },
           { path: 'new', element: <NewEntryPage /> },
           { path: 'new/bag', element: <NewBagPage /> },

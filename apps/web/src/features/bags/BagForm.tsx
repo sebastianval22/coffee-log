@@ -1,20 +1,19 @@
 import { zodResolver } from '@hookform/resolvers/zod'
-import { ChevronDown } from 'lucide-react'
-import { useState, type ReactNode } from 'react'
+import { useState } from 'react'
 import { Controller, useForm } from 'react-hook-form'
 import { CreatableCombobox } from '@/components/CreatableCombobox'
-import { Field, NativeSelect } from '@/components/form'
+import { Field, NativeSelect, Section } from '@/components/form'
 import { PhotoPicker } from '@/components/PhotoPicker'
 import { RatingInput } from '@/components/RatingInput'
 import { TagInput } from '@/components/TagInput'
 import { Button } from '@/components/ui/button'
-import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible'
 import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
 import { useFindOrCreateRoaster, useRoasters } from '@/features/roasters/api'
 import type { ProcessedPhoto } from '@/lib/image'
 import { ORIGIN_COUNTRIES, PROCESS_LABELS, ROAST_LABELS } from '@/lib/labels'
-import { useFlavorTagSuggestions, type BagFields } from './api'
+import { useFlavorTagSuggestions } from '@/features/tags/api'
+import type { BagFields } from './api'
 import { bagFormSchema, valuesToFields, type BagFormValues } from './bagFormValues'
 
 type Props = {
@@ -172,18 +171,6 @@ export function BagForm({ defaultValues, storedPhotoPath, submitLabel, onSubmit 
         {formState.isSubmitting ? 'Guardando…' : submitLabel}
       </Button>
     </form>
-  )
-}
-
-function Section({ title, defaultOpen = false, children }: { title: string; defaultOpen?: boolean; children: ReactNode }) {
-  return (
-    <Collapsible defaultOpen={defaultOpen} className="rounded-xl border bg-card">
-      <CollapsibleTrigger className="group flex w-full items-center justify-between px-4 py-3 font-medium">
-        {title}
-        <ChevronDown className="size-4 transition-transform group-data-[state=open]:rotate-180" />
-      </CollapsibleTrigger>
-      <CollapsibleContent className="flex flex-col gap-4 px-4 pb-4">{children}</CollapsibleContent>
-    </Collapsible>
   )
 }
 

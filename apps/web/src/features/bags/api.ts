@@ -1,7 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import type { Tables, TablesInsert, TablesUpdate } from '@/lib/database.types'
 import type { ProcessedPhoto } from '@/lib/image'
-import { deletePhoto, newPhotoPath, uploadPhoto } from '@/lib/photos'
+import { createWithPhoto, deletePhoto, updateWithPhoto } from '@/lib/photos'
 import { supabase } from '@/lib/supabase'
 
 export type BagSummary = Tables<'bag_summary'>
@@ -12,7 +12,6 @@ export const bagKeys = {
   list: () => [...bagKeys.all, 'list'] as const,
   open: () => [...bagKeys.all, 'open'] as const,
   detail: (id: string) => [...bagKeys.all, 'detail', id] as const,
-  tags: () => [...bagKeys.all, 'tags'] as const,
 }
 
 export function useBags() {
@@ -56,45 +55,13 @@ export function useBag(id: string) {
   })
 }
 
-/** Every flavor tag used so far (bags and tastings), most frequent first. */
-export function useFlavorTagSuggestions() {
-  return useQuery({
-    queryKey: bagKeys.tags(),
-    queryFn: async () => {
-      const [bags, cups] = await Promise.all([
-        supabase.from('bags').select('flavor_tags'),
-        supabase.from('cups').select('flavor_tags').eq('is_tasting', true),
-      ])
-      if (bags.error) throw bags.error
-      if (cups.error) throw cups.error
-      return rankByFrequency([...bags.data, ...cups.data].flatMap((row) => row.flavor_tags))
-    },
-  })
-}
-
-function rankByFrequency(values: string[]) {
-  const counts = new Map<string, number>()
-  for (const v of values) counts.set(v, (counts.get(v) ?? 0) + 1)
-  return [...counts.entries()].sort((a, b) => b[1] - a[1]).map(([v]) => v)
-}
-
 export function useCreateBag() {
   const queryClient = useQueryClient()
   return useMutation({
-    mutationFn: async ({ fields, photo }: { fields: BagFields; photo: ProcessedPhoto }) => {
-      const { data: auth } = await supabase.auth.getUser()
-      if (!auth.user) throw new Error('Sesión expirada. Vuelve a iniciar sesión.')
-
-      // The id is generated here so the photo can be uploaded to its final path first.
-      const id = crypto.randomUUID()
-      const path = await uploadPhoto(newPhotoPath(auth.user.id, 'bags', id), photo)
-      const { error } = await supabase.from('bags').insert({ ...fields, id, photo_path: path })
-      if (error) {
-        await deletePhoto(path).catch(() => {})
-        throw error
-      }
-      return id
-    },
+    mutationFn: ({ fields, photo }: { fields: BagFields; photo: ProcessedPhoto }) =>
+      createWithPhoto('bags', photo, (id, photo_path) =>
+        supabase.from('bags').insert({ ...fields, id, photo_path }),
+      ),
     onSuccess: () => queryClient.invalidateQueries({ queryKey: bagKeys.all }),
   })
 }
@@ -102,7 +69,7 @@ export function useCreateBag() {
 export function useUpdateBag(id: string) {
   const queryClient = useQueryClient()
   return useMutation({
-    mutationFn: async ({
+    mutationFn: ({
       fields,
       photo,
       currentPhotoPath,
@@ -110,22 +77,13 @@ export function useUpdateBag(id: string) {
       fields: TablesUpdate<'bags'>
       photo: ProcessedPhoto | null
       currentPhotoPath: string
-    }) => {
-      if (!photo) {
-        const { error } = await supabase.from('bags').update(fields).eq('id', id)
-        if (error) throw error
-        return
-      }
-      // New photo: upload to a fresh path, point the row at it, then drop the old files.
-      const userId = currentPhotoPath.split('/')[0]
-      const path = await uploadPhoto(newPhotoPath(userId, 'bags', id), photo)
-      const { error } = await supabase.from('bags').update({ ...fields, photo_path: path }).eq('id', id)
-      if (error) {
-        await deletePhoto(path).catch(() => {})
-        throw error
-      }
-      await deletePhoto(currentPhotoPath).catch(() => {})
-    },
+    }) =>
+      updateWithPhoto('bags', id, currentPhotoPath, photo, (photo_path) =>
+        supabase
+          .from('bags')
+          .update(photo_path ? { ...fields, photo_path } : fields)
+          .eq('id', id),
+      ),
     onSuccess: () => queryClient.invalidateQueries({ queryKey: bagKeys.all }),
   })
 }
