@@ -11,9 +11,12 @@
     "lint": "pnpm -r lint",
     "db:start": "supabase start",
     "db:stop": "supabase stop",
-    "db:reset": "supabase db reset"
+    "db:reset": "supabase db reset",
+    "db:test": "supabase test db",
+    "db:types": "supabase gen types typescript --local > apps/web/src/lib/database.types.ts && oxfmt apps/web/src/lib/database.types.ts"
   },
   "devDependencies": {
+    "oxfmt": "^0.72.0",
     "supabase": "^2.120.0"
   }
 }
