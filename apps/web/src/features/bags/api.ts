@@ -10,6 +10,7 @@ export type BagFields = Omit<TablesInsert<'bags'>, 'id' | 'user_id' | 'photo_pat
 export const bagKeys = {
   all: ['bags'] as const,
   list: () => [...bagKeys.all, 'list'] as const,
+  open: () => [...bagKeys.all, 'open'] as const,
   detail: (id: string) => [...bagKeys.all, 'detail', id] as const,
   tags: () => [...bagKeys.all, 'tags'] as const,
 }
@@ -28,6 +29,22 @@ export function useBags() {
   })
 }
 
+/** Bags not finished yet, most recently opened first ("Abiertas ahora"). */
+export function useOpenBags() {
+  return useQuery({
+    queryKey: bagKeys.open(),
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('bag_summary')
+        .select('*')
+        .is('finished_at', null)
+        .order('opened_at', { ascending: false })
+      if (error) throw error
+      return data
+    },
+  })
+}
+
 export function useBag(id: string) {
   return useQuery({
     queryKey: bagKeys.detail(id),
@@ -39,14 +56,18 @@ export function useBag(id: string) {
   })
 }
 
-/** Every flavor tag used so far, most frequent first (suggestions for the tag input). */
+/** Every flavor tag used so far (bags and tastings), most frequent first. */
 export function useFlavorTagSuggestions() {
   return useQuery({
     queryKey: bagKeys.tags(),
     queryFn: async () => {
-      const { data, error } = await supabase.from('bags').select('flavor_tags')
-      if (error) throw error
-      return rankByFrequency(data.flatMap((row) => row.flavor_tags))
+      const [bags, cups] = await Promise.all([
+        supabase.from('bags').select('flavor_tags'),
+        supabase.from('cups').select('flavor_tags').eq('is_tasting', true),
+      ])
+      if (bags.error) throw bags.error
+      if (cups.error) throw cups.error
+      return rankByFrequency([...bags.data, ...cups.data].flatMap((row) => row.flavor_tags))
     },
   })
 }

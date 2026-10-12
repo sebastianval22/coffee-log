@@ -17,6 +17,7 @@ import {
 } from '@/components/ui/alert-dialog'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
+import { CupsSection } from '@/features/cups/CupsSection'
 import { errorMessage } from '@/lib/errors'
 import { PROCESS_LABELS, ROAST_LABELS } from '@/lib/labels'
 import { formatDate } from '@/lib/text'
@@ -86,6 +87,8 @@ function BagDetail({ bag }: { bag: BagSummary }) {
                 </div>
               ))}
           </dl>
+
+          <CupsSection bagId={bag.id!} canLog={!bag.finished_at} />
 
           <div className="flex gap-2">
             <Button asChild variant="outline" className="flex-1">
