@@ -1,21 +1,22 @@
-# Spec — Fase 1: MVP manual
+# Spec — Phase 1: manual MVP
 
-> Estado: aprobado (grilling 2026-10-11). Fuente de verdad para los tickets de la Fase 1.
-> Objetivo: **usar la app a diario** desde el iPhone (PWA) y verla bien en el computador. Sin IA todavía.
+> Status: approved (grilling session, 2026-10-11). Source of truth for the Phase 1 issues (label `phase-1`).
+> Goal: **use the app daily** from the iPhone (PWA) and browse it comfortably on a computer. No AI yet.
+> UI copy is in Spanish (quoted below as it appears in the app); code, docs and commits are in English.
 
-## 1. Conceptos del dominio
+## 1. Domain concepts
 
-| Concepto | Qué es | Evento que lo crea |
+| Concept | What it is | Created by |
 |---|---|---|
-| **Bolsa** (`bags`) | Una bolsa de café que abro en casa. Tiene una foto (del empaque) y mi veredicto. | Abrir una bolsa nueva |
-| **Taza** (`cups`) | Una taza tomada de una bolsa. Puede ser *rápida* (solo fecha, botón "+1") o *cata* (con método, rating, tags o notas). | "+1 taza" o "Agregar cata" |
-| **Visita** (`cafe_visits`) | Un café que tomé en una cafetería. Foto propia (de la taza), sin bolsa. | Registrar visita |
-| **Tostador** (`roasters`) | Quien tostó el café. Compartido por bolsas y visitas. | Autocompletar / crear al vuelo |
-| **Cafetería** (`cafes`) | Lugar donde tomé café. | Autocompletar / crear al vuelo |
+| **Bag** (`bags`) | A bag of coffee I open at home. One photo (of the package) and my verdict. | Opening a new bag |
+| **Cup** (`cups`) | A cup brewed from a bag. Either *quick* (timestamp only, "+1" button) or a *tasting* (method, rating, tags or notes). | "+1" or "Agregar cata" |
+| **Café visit** (`cafe_visits`) | A coffee I had at a café. Its own photo (of the cup), no bag. | Logging a visit |
+| **Roaster** (`roasters`) | Who roasted the coffee. Shared by bags and visits. | Autocomplete / create inline |
+| **Café** (`cafes`) | A place where I had coffee. | Autocomplete / create inline |
 
-Una taza es una **cata** si tiene al menos uno de: método, rating, tags, notas. Si no, es **rápida**.
+A cup is a **tasting** if it has at least one of: method, rating, tags, notes. Otherwise it is a **quick cup**.
 
-## 2. Modelo de datos
+## 2. Data model
 
 ```sql
 create type process_t as enum ('washed','natural','honey','anaerobic','wet_hulled','other');
@@ -30,11 +31,11 @@ cafes       (id, user_id, name, city, address, created_at)            unique (us
 bags (
   id, user_id,
   name            text not null,
-  photo_path      text not null,          -- {user_id}/bags/{id}/full.jpg (thumb.jpg al lado)
+  photo_path      text not null,          -- {user_id}/bags/{id}/full.jpg (thumb.jpg next to it)
   roaster_id      → roasters on delete set null,
   origin_country, origin_region, farm, varieties text[], process process_t, roast_level roast_t,
   altitude_m      int check 0..3500,
-  label_notes     text[],                  -- notas impresas en el empaque
+  label_notes     text[],                  -- tasting notes printed on the package
   opened_at       timestamptz not null default now(),
   finished_at     timestamptz check (finished_at >= opened_at),
   finish_prompt_snoozed_until timestamptz,
@@ -65,63 +66,63 @@ cafe_visits (
 )
 ```
 
-- **RLS** en todas las tablas: `user_id = auth.uid()` para select/insert/update/delete; `user_id default auth.uid()`. Sin "auto-expose": `GRANT` explícitos a `authenticated` en la migración (local y nube se comportan igual).
-- **Storage:** bucket privado `photos`, políticas por prefijo `{auth.uid()}/`. Dos archivos por foto: `full.jpg` (~1600px lado mayor, JPEG ~0.8) y `thumb.jpg` (~400px). Lectura con signed URLs.
-- **Búsqueda:** `unaccent` + config `spanish`. Bolsas: nombre y tostador (A), origen/región/finca/variedades (B), notas/tags (C). Visitas: cafetería, nombre del café, tostador (A), origen, bebida (B), notas/tags (C). Índice GIN + `pg_trgm` sobre nombres para errores de tipeo.
-- **Vistas** (con `security_invoker = true`):
-  - `bag_summary`: bolsa + tostador + nº de tazas + nº de catas + última taza.
-  - `history_feed`: unión de eventos `bag_opened` (bags.opened_at), `bag_finished` (bags.finished_at), `tasting` (cups que son catas), `cafe_visit`. Columnas comunes: `kind, occurred_at, bag_id, cup_id, visit_id, title, subtitle, photo_path, rating`.
-- Borrar una bolsa borra sus tazas y sus fotos en Storage. Borrar una visita borra su foto.
+- **RLS** on every table: `user_id = auth.uid()` for select/insert/update/delete; `user_id default auth.uid()`. The cloud project has "auto-expose" off, so the migration has explicit `GRANT`s to `authenticated` (local and cloud behave the same).
+- **Storage:** private `photos` bucket, policies scoped to the `{auth.uid()}/` prefix. Two files per photo: `full.jpg` (~1600px long edge, JPEG ~0.8) and `thumb.jpg` (~400px). Read through signed URLs.
+- **Search:** `unaccent` + `spanish` config. Bags: name and roaster (A), origin/region/farm/varieties (B), notes/tags (C). Visits: café, coffee name, roaster (A), origin, drink (B), notes/tags (C). GIN index + `pg_trgm` on names for typos.
+- **Views** (with `security_invoker = true`):
+  - `bag_summary`: bag + roaster + cup count + tasting count + last cup.
+  - `history_feed`: union of `bag_opened` (bags.opened_at), `bag_finished` (bags.finished_at), `tasting` (cups that are tastings) and `cafe_visit` events. Common columns: `kind, occurred_at, bag_id, cup_id, visit_id, title, subtitle, photo_path, rating`.
+- Deleting a bag deletes its cups and its photos in Storage. Deleting a visit deletes its photo.
 
-## 3. Pantallas y flujos
+## 3. Screens and flows
 
-Navegación inferior (móvil) / lateral o superior (desktop): **Inicio · Cafés · Cafeterías** + botón principal **Registrar** (elige "Abrí una bolsa" o "Estoy en una cafetería").
+Navigation: bottom bar (mobile) / top or side nav (desktop) with **Inicio · Cafés · Cafeterías** plus a primary **Registrar** button (choose "Abrí una bolsa" or "Estoy en una cafetería").
 
 ### 3.1 Login
-Email → código OTP de 6 dígitos → sesión persistida. Sin magic link (no comparte sesión con la PWA en iOS).
+Email → 6-digit OTP code → persisted session. No magic link (on iOS it opens in Safari, which doesn't share the session with the installed PWA).
 
-### 3.2 Inicio (Historial)
-- **"Abiertas ahora"** arriba: bolsas con `finished_at is null`, miniatura + contador de tazas + botón **+1**. Al tocar +1: crea taza rápida y muestra aviso "Taza registrada · Deshacer" (~5 s).
-- **"¿Ya terminaste?"** en la tarjeta de una bolsa abierta cuando (`now - opened_at ≥ 14 días` **o** `now - última taza ≥ 7 días`, contando desde `opened_at` si no hay tazas) **y** `now ≥ finish_prompt_snoozed_until`. Botones: "Sí, terminé" → hoja de término; "Todavía no" → `snoozed_until = now + 7 días`. Constantes en un solo módulo.
-- Debajo: `history_feed` paginado, más reciente primero. Las tazas rápidas no aparecen.
+### 3.2 Home (history)
+- **"Abiertas ahora"** strip at the top: bags with `finished_at is null`, thumbnail + cup count + **+1** button. Tapping +1 creates a quick cup and shows a "Taza registrada · Deshacer" toast (~5 s).
+- **"¿Ya terminaste?"** prompt on an open bag's card when (`now - opened_at ≥ 14 days` **or** `now - last cup ≥ 7 days`, counting from `opened_at` if there are no cups) **and** `now ≥ finish_prompt_snoozed_until`. Buttons: "Sí, terminé" → finish sheet; "Todavía no" → `snoozed_until = now + 7 days`. Constants live in one module.
+- Below: paginated `history_feed`, newest first. Quick cups don't appear.
 
-### 3.3 Registrar bolsa
-Foto (obligatoria; `capture="environment"`, en desktop permite archivo) → formulario: nombre (obligatorio), tostador (combobox con crear), origen, región, finca, variedades, proceso, tostión, altitud, notas del empaque, fecha de apertura (default ahora). Opcional en la misma pantalla, colapsado: rating/tags/notas. Guardar → detalle.
+### 3.3 Log a bag
+Photo (required; `capture="environment"`, file picker on desktop) → form: name (required), roaster (combobox with create), origin, region, farm, varieties, process, roast level, altitude, label notes, opened date (defaults to now). Optional on the same screen, collapsed: rating/tags/notes. Save → detail.
 
-### 3.4 Detalle de bolsa
-Foto grande, datos, veredicto, lista de tazas (catas con detalle; rápidas agrupadas como contador), botones **+1**, **Agregar cata**, **Terminé esta bolsa** (o "Reabrir" si está terminada), Editar, Borrar (confirmación).
+### 3.4 Bag detail
+Large photo, data, verdict, list of cups (tastings in full; quick cups grouped as a counter), buttons **+1**, **Agregar cata**, **Terminé esta bolsa** (or "Reabrir" when finished), Edit, Delete (with confirmation).
 
-### 3.5 Hoja de término
-Fecha de término (default hoy, ≥ apertura), rating final, ¿la comprarías de nuevo? — todo opcional, prellenado con lo que ya exista.
+### 3.5 Finish sheet
+Finish date (defaults to today, ≥ opened date), final rating, "would you buy it again?" — all optional, prefilled with existing values.
 
-### 3.6 Registrar / detalle de visita
-Foto (obligatoria), cafetería (combobox con crear: nombre, ciudad, dirección), bebida (obligatoria), fecha (default ahora), rating, tags, notas, y colapsado "Sé qué café era": nombre, tostador, origen, proceso. Detalle con Editar y Borrar.
+### 3.6 Log / view a café visit
+Photo (required), café (combobox with create: name, city, address), drink (required), date (defaults to now), rating, tags, notes, and a collapsed "Sé qué café era" section: coffee name, roaster, origin, process. Detail page with Edit and Delete.
 
-### 3.7 Cafés (catálogo) y Cafeterías
-- **Cafés:** grilla de bolsas (`bag_summary`), pestañas Abiertas / Todas.
-- **Cafeterías:** grilla de visitas, agrupable por cafetería.
-- Ambas con búsqueda de texto y filtros: proceso, tostión (solo bolsas), rating mínimo, rango de fechas (apertura / visita). Orden: fecha o rating. Filtros reflejados en la URL (compartible, sobrevive a recargas).
+### 3.7 Cafés (catalog) and Cafeterías
+- **Cafés:** grid of bags (`bag_summary`), Open / All tabs.
+- **Cafeterías:** grid of visits, optionally grouped by café.
+- Both with text search and filters: process, roast level (bags only), minimum rating, date range (opened / visited). Sort by date or rating. Filters live in the URL (shareable, survive reloads).
 
-### 3.8 Detalles comunes
-- Grilla responsive: 1 columna en móvil, 2 en tablet, 3–4 en desktop; miniaturas `thumb.jpg`, detalle `full.jpg`.
-- Rating: estrellas de 0 a 5 en pasos de 0,5. Tags: libres, con sugerencias de los ya usados.
-- Fechas en UTC en la BD, mostradas en la zona horaria del dispositivo.
-- UI en español; código en inglés. `safe-area-inset` respetado.
+### 3.8 Shared details
+- Responsive grid: 1 column on mobile, 2 on tablet, 3–4 on desktop; `thumb.jpg` in grids, `full.jpg` in details.
+- Rating: 0–5 stars in 0.5 steps. Tags: free text, suggesting previously used ones.
+- Timestamps stored in UTC, shown in the device's time zone.
+- Respect `safe-area-inset`.
 
 ## 4. Stack
 
-React Router (modo librería) · TanStack Query · shadcn/ui · react-hook-form + Zod · `@supabase/supabase-js`. Compresión de imagen por `<canvas>` (normaliza HEIC y orientación EXIF).
+React Router (library mode) · TanStack Query · shadcn/ui · react-hook-form + Zod · `@supabase/supabase-js`. Image compression via `<canvas>` (normalizes HEIC and EXIF orientation).
 
-## 5. Calidad
+## 5. Quality
 
-- **pgTAP** (`supabase test db`): RLS en todas las tablas, vistas y Storage — usuario A no lee, edita ni borra datos de B; anónimo no ve nada.
-- `pnpm build` (tsc) y lint en verde antes de cada merge.
+- **pgTAP** (`supabase test db`): RLS on every table, view and the bucket — user A can't read, update or delete user B's data; `anon` sees nothing.
+- `pnpm build` (tsc) and lint green before every merge.
 
-## 6. Operación (lo corre Sebastián)
+## 6. Operations (run by the owner)
 
-- `supabase link --project-ref <ref>` (una vez) y `supabase db push` por cada migración nueva.
-- Supabase nube → Authentication: plantilla de email con `{{ .Token }}` (OTP), y después de crear su usuario desactivar "Allow new users to sign up".
+- `supabase link --project-ref <ref>` (once) and `supabase db push` for each new migration.
+- Supabase cloud → Authentication: email template with `{{ .Token }}` (OTP); after creating the owner's user, disable "Allow new users to sign up".
 
-## 7. Fuera de alcance (Fase 1)
+## 7. Out of scope (Phase 1)
 
-IA/extracción (Fase 2) · calendario visual e insights (Fase 4) · offline/cola · exportación · vincular visita↔bolsa · crear bolsa desde visita · GPS/mapa · foto por taza · i18n.
+AI extraction (Phase 2) · calendar view and insights (Phase 4) · offline queue · export · linking a visit to a bag · creating a bag from a visit · GPS/map · photo per cup · i18n.
