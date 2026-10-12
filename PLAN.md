@@ -53,6 +53,8 @@ Doble propósito:
 
 ## 3. Modelo de datos (Postgres)
 
+> **Actualizado 2026-10-11:** el modelo vigente está en [`docs/specs/phase-1.md`](docs/specs/phase-1.md). `coffees`/`tastings` se reemplazan por **`bags`** (bolsas de casa, con veredicto), **`cups`** (tazas: rápidas "+1" o catas) y **`cafe_visits`** (visitas a cafeterías, con tabla `cafes`). En la Fase 2, `extractions.coffee_id` pasa a ser `bag_id`. El SQL de abajo queda como referencia histórica.
+
 Separación clave: **coffee** (la bolsa/producto) ≠ **tasting** (cada vez que lo tomo). Un mismo café puede tener varias catas (distintos métodos, días, lugares).
 
 ```sql
@@ -190,6 +192,8 @@ Historia para entrevistas: *"comparé dos proveedores y N versiones de prompt co
 
 ## 6. Frontend (pantallas)
 
+> **Actualizado 2026-10-11:** pantallas de la Fase 1 en [`docs/specs/phase-1.md`](docs/specs/phase-1.md) §3 (Inicio = historial + "Abiertas ahora", Cafés, Cafeterías, "¿Ya terminaste?").
+
 1. **Capturar** (botón principal, grande): abre cámara → preview → sube → muestra formulario pre-llenado con campos `low` resaltados → guardar café + primera cata.
 2. **Lista / búsqueda**: barra de búsqueda (full-text), filtros (origen, proceso, tostión, rating ≥, método), orden por fecha/rating. Tarjetas con miniatura.
 3. **Detalle del café**: foto, datos, historial de catas, "agregar cata".
@@ -258,11 +262,17 @@ Monorepo con **pnpm workspaces**. Desarrollo local: Supabase CLI + Docker Deskto
 - [x] PWA en el iPhone: agregada a pantalla de inicio, Supabase configurado. *(2026-10-10)*
 
 ### Fase 1 — MVP manual (1–2 fines de semana) → **ya lo uso a diario**
-- [ ] Auth con OTP por email.
-- [ ] Migraciones: tablas, enums, RLS, bucket de fotos.
-- [ ] Captura de foto + compresión + subida.
-- [ ] Formulario manual café + cata; lista; detalle.
-- [ ] Búsqueda full-text + filtros.
+Spec: [`docs/specs/phase-1.md`](docs/specs/phase-1.md) · Tickets: GitHub Issues con label `phase-1`.
+- [ ] Migraciones: enums, `roasters`, `cafes`, `bags`, `cups`, `cafe_visits`, RLS, bucket `photos`, búsqueda, vistas + pgTAP de RLS.
+- [ ] Auth con OTP por email + esqueleto de la app (router, layout, shadcn/ui, TanStack Query).
+- [ ] Foto: captura, compresión (full + thumb) y subida.
+- [ ] Bolsas: registrar, detalle, editar, borrar.
+- [ ] Tazas: "+1" con deshacer, "Abiertas ahora", catas con detalle.
+- [ ] Terminar bolsa: hoja de término + aviso "¿Ya terminaste?".
+- [ ] Visitas a cafeterías: registrar, detalle, editar, borrar.
+- [ ] Inicio: historial (`history_feed`).
+- [ ] Cafés y Cafeterías: grillas, búsqueda full-text, filtros (proceso, tostión, rating, fechas), orden.
+- [ ] Nube: `db push`, plantilla OTP, desactivar registros.
 
 ### Fase 2 — IA (1 fin de semana)
 - [ ] Schema Zod compartido; Edge Function con proveedor Claude.
