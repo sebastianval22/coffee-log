@@ -1,7 +1,9 @@
 import { createBrowserRouter } from 'react-router'
 import { LoginPage } from '@/features/auth/LoginPage'
 import { RequireAuth } from '@/features/auth/RequireAuth'
+import { BagDetailPage } from '@/features/bags/BagDetailPage'
 import { BagsPage } from '@/features/bags/BagsPage'
+import { EditBagPage } from '@/features/bags/EditBagPage'
 import { NewBagPage } from '@/features/bags/NewBagPage'
 import { HomePage } from '@/features/home/HomePage'
 import { NewVisitPage } from '@/features/visits/NewVisitPage'
@@ -20,6 +22,8 @@ export const router = createBrowserRouter([
         children: [
           { index: true, element: <HomePage /> },
           { path: 'bags', element: <BagsPage /> },
+          { path: 'bags/:id', element: <BagDetailPage /> },
+          { path: 'bags/:id/edit', element: <EditBagPage /> },
           { path: 'visits', element: <VisitsPage /> },
           { path: 'new', element: <NewEntryPage /> },
           { path: 'new/bag', element: <NewBagPage /> },

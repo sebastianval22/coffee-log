@@ -1,14 +1,30 @@
-import { useState } from 'react'
-import { PhotoPicker } from '@/components/PhotoPicker'
-import type { ProcessedPhoto } from '@/lib/image'
+import { useNavigate } from 'react-router'
+import { toast } from 'sonner'
+import { errorMessage } from '@/lib/errors'
+import { useCreateBag } from './api'
+import { BagForm } from './BagForm'
+import { emptyBagValues } from './bagFormValues'
 
-// The rest of the form arrives with #4.
 export function NewBagPage() {
-  const [photo, setPhoto] = useState<ProcessedPhoto | null>(null)
+  const navigate = useNavigate()
+  const createBag = useCreateBag()
+
   return (
     <section className="mx-auto flex max-w-md flex-col gap-4">
       <h1 className="text-2xl font-bold">Abrí una bolsa</h1>
-      <PhotoPicker value={photo} onChange={setPhoto} />
+      <BagForm
+        defaultValues={emptyBagValues()}
+        submitLabel="Guardar bolsa"
+        onSubmit={async (fields, photo) => {
+          try {
+            const id = await createBag.mutateAsync({ fields, photo: photo! })
+            toast.success('Bolsa guardada')
+            navigate(`/bags/${id}`, { replace: true })
+          } catch (e) {
+            toast.error(errorMessage(e))
+          }
+        }}
+      />
     </section>
   )
 }
