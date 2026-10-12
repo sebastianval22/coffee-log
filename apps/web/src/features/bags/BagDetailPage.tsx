@@ -1,4 +1,4 @@
-import { ArrowLeft, Pencil, Trash2 } from 'lucide-react'
+import { ArrowLeft, CircleCheck, Pencil, RotateCcw, Trash2 } from 'lucide-react'
 import type { ReactNode } from 'react'
 import { Link, useNavigate, useParams } from 'react-router'
 import { toast } from 'sonner'
@@ -21,7 +21,8 @@ import { CupsSection } from '@/features/cups/CupsSection'
 import { errorMessage } from '@/lib/errors'
 import { PROCESS_LABELS, ROAST_LABELS } from '@/lib/labels'
 import { formatDate } from '@/lib/text'
-import { useBag, useDeleteBag, type BagSummary } from './api'
+import { useBag, useDeleteBag, usePatchBag, type BagSummary } from './api'
+import { FinishBagDialog } from './FinishBagDialog'
 
 export function BagDetailPage() {
   const { id = '' } = useParams()
@@ -90,6 +91,19 @@ function BagDetail({ bag }: { bag: BagSummary }) {
 
           <CupsSection bagId={bag.id!} canLog={!bag.finished_at} />
 
+          {bag.finished_at ? (
+            <ReopenBagButton bag={bag} />
+          ) : (
+            <FinishBagDialog
+              bag={bag}
+              trigger={
+                <Button variant="secondary">
+                  <CircleCheck /> Terminé esta bolsa
+                </Button>
+              }
+            />
+          )}
+
           <div className="flex gap-2">
             <Button asChild variant="outline" className="flex-1">
               <Link to={`/bags/${bag.id}/edit`}>
@@ -133,6 +147,24 @@ function Verdict({ bag }: { bag: BagSummary }) {
         </p>
       )}
     </section>
+  )
+}
+
+function ReopenBagButton({ bag }: { bag: BagSummary }) {
+  const patchBag = usePatchBag()
+  return (
+    <Button
+      variant="secondary"
+      disabled={patchBag.isPending}
+      onClick={() =>
+        patchBag.mutate(
+          { id: bag.id!, fields: { finished_at: null, finish_prompt_snoozed_until: null } },
+          { onSuccess: () => toast.success('Bolsa reabierta'), onError: (e) => toast.error(errorMessage(e)) },
+        )
+      }
+    >
+      <RotateCcw /> Reabrir
+    </Button>
   )
 }
 

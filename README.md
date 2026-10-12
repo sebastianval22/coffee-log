@@ -20,6 +20,7 @@ pnpm install
 pnpm db:start                         # local Postgres/Auth/Storage in Docker
 cp apps/web/.env.example apps/web/.env.local   # fill in the publishable key printed by db:start
 pnpm dev
+pnpm test                             # Vitest unit tests
 ```
 
 Database:

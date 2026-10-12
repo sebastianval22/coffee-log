@@ -130,6 +130,18 @@ export function useUpdateBag(id: string) {
   })
 }
 
+/** Small field updates without touching the photo: finish, reopen, snooze the finish prompt. */
+export function usePatchBag() {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: async ({ id, fields }: { id: string; fields: TablesUpdate<'bags'> }) => {
+      const { error } = await supabase.from('bags').update(fields).eq('id', id)
+      if (error) throw error
+    },
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: bagKeys.all }),
+  })
+}
+
 export function useDeleteBag() {
   const queryClient = useQueryClient()
   return useMutation({
