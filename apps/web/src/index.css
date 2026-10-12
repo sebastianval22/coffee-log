@@ -73,5 +73,7 @@
   }
   body {
     @apply bg-background text-foreground antialiased;
+    /* No rubber-band scroll of the whole page; the app shell scrolls its own <main>. */
+    overscroll-behavior: none;
   }
 }

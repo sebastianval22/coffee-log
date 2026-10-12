@@ -1,4 +1,4 @@
-import { ChevronDown, NotebookPen, Pencil, Plus, Trash2 } from 'lucide-react'
+import { ChevronDown, Coffee, NotebookPen, Pencil, Trash2 } from 'lucide-react'
 import { toast } from 'sonner'
 import { RatingStars } from '@/components/RatingInput'
 import {
@@ -35,7 +35,7 @@ export function CupsSection({ bagId, canLog }: { bagId: string; canLog: boolean 
       {canLog && (
         <div className="flex gap-2">
           <QuickCupButton bagId={bagId} className="flex-1">
-            <Plus /> 1 taza
+            <Coffee /> +1 taza
           </QuickCupButton>
           <TastingDialog
             bagId={bagId}

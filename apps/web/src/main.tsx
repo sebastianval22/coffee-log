@@ -17,7 +17,7 @@ createRoot(document.getElementById('root')!).render(
     <QueryClientProvider client={queryClient}>
       <SessionProvider>
         <RouterProvider router={router} />
-        <Toaster position="top-center" />
+        <Toaster position="top-center" mobileOffset={{ top: 'calc(env(safe-area-inset-top) + 8px)' }} />
       </SessionProvider>
     </QueryClientProvider>
   </StrictMode>,
