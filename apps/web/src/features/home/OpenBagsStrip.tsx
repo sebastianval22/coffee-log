@@ -28,7 +28,7 @@ export function OpenBagsStrip() {
         </div>
       ) : (
         // A horizontal strip on the phone, a grid on wider screens.
-        <ul className="-mx-4 flex snap-x items-start gap-3 overflow-x-auto px-4 pb-1 [scrollbar-width:none] md:mx-0 md:grid md:grid-cols-2 md:px-0 lg:grid-cols-3">
+        <ul className="-mx-4 flex snap-x gap-3 overflow-x-auto px-4 pb-1 [scrollbar-width:none] md:mx-0 md:grid md:grid-cols-2 md:px-0 lg:grid-cols-3">
           {bags.map((bag) => (
             <li key={bag.id} className="w-[85%] shrink-0 snap-start only:w-full md:w-auto">
               <OpenBagCard bag={bag} />
@@ -42,7 +42,7 @@ export function OpenBagsStrip() {
 
 function OpenBagCard({ bag }: { bag: BagSummary }) {
   return (
-    <div className="flex flex-col gap-2.5 rounded-2xl border bg-card p-2.5 shadow-sm">
+    <div className="flex h-full flex-col gap-2.5 rounded-2xl border bg-card p-2.5 shadow-sm">
       <div className="flex items-center gap-3">
         <Link to={`/bags/${bag.id}`} className="flex min-w-0 flex-1 items-center gap-3">
           <StoredPhoto path={bag.photo_path} variant="thumb" alt="" className="size-16 shrink-0 rounded-xl" />

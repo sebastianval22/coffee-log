@@ -270,7 +270,7 @@ Spec: [`docs/specs/phase-1.md`](docs/specs/phase-1.md) · Tickets: GitHub Issues
 - [x] Tazas: "+1" con deshacer, "Abiertas ahora", catas con detalle.
 - [x] Terminar bolsa: hoja de término + aviso "¿Ya terminaste?".
 - [x] Visitas a cafeterías: registrar, detalle, editar, borrar.
-- [ ] Inicio: historial (`history_feed`).
+- [x] Inicio: historial (`history_feed`).
 - [ ] Cafés y Cafeterías: grillas, búsqueda full-text, filtros (proceso, tostión, rating, fechas), orden.
 - [x] Nube: `db push`, plantilla OTP, desactivar registros.
 
