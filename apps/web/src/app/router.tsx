@@ -1,0 +1,32 @@
+import { createBrowserRouter } from 'react-router'
+import { LoginPage } from '@/features/auth/LoginPage'
+import { RequireAuth } from '@/features/auth/RequireAuth'
+import { BagsPage } from '@/features/bags/BagsPage'
+import { NewBagPage } from '@/features/bags/NewBagPage'
+import { HomePage } from '@/features/home/HomePage'
+import { NewVisitPage } from '@/features/visits/NewVisitPage'
+import { VisitsPage } from '@/features/visits/VisitsPage'
+import { AppLayout } from './AppLayout'
+import { NewEntryPage } from './NewEntryPage'
+import { NotFoundPage } from './NotFoundPage'
+
+export const router = createBrowserRouter([
+  { path: '/login', element: <LoginPage /> },
+  {
+    element: <RequireAuth />,
+    children: [
+      {
+        element: <AppLayout />,
+        children: [
+          { index: true, element: <HomePage /> },
+          { path: 'bags', element: <BagsPage /> },
+          { path: 'visits', element: <VisitsPage /> },
+          { path: 'new', element: <NewEntryPage /> },
+          { path: 'new/bag', element: <NewBagPage /> },
+          { path: 'new/visit', element: <NewVisitPage /> },
+          { path: '*', element: <NotFoundPage /> },
+        ],
+      },
+    ],
+  },
+])
