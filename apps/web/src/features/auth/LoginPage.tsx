@@ -157,6 +157,7 @@ function describeAuthError(error: AuthError): string {
     case 'over_request_rate_limit':
       return 'Demasiados intentos. Espera un momento y vuelve a intentar.'
     default:
-      return 'Algo salió mal. Intenta de nuevo.'
+      // Surface the raw message so misconfigurations (wrong URL, SMTP) are diagnosable on the phone.
+      return `Algo salió mal (${error.message}). Intenta de nuevo.`
   }
 }
