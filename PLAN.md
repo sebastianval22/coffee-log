@@ -271,7 +271,7 @@ Spec: [`docs/specs/phase-1.md`](docs/specs/phase-1.md) · Tickets: GitHub Issues
 - [x] Terminar bolsa: hoja de término + aviso "¿Ya terminaste?".
 - [x] Visitas a cafeterías: registrar, detalle, editar, borrar.
 - [x] Inicio: historial (`history_feed`).
-- [ ] Cafés y Cafeterías: grillas, búsqueda full-text, filtros (proceso, tostión, rating, fechas), orden.
+- [x] Cafés y Cafeterías: grillas, búsqueda full-text, filtros (proceso, tostión, rating, fechas), orden.
 - [x] Nube: `db push`, plantilla OTP, desactivar registros.
 
 ### Fase 2 — IA (1 fin de semana)

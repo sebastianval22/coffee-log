@@ -1,18 +1,44 @@
-import type { ReactNode } from 'react'
 import { Plus } from 'lucide-react'
+import type { ReactNode } from 'react'
 import { Link } from 'react-router'
 import { RatingStars } from '@/components/RatingInput'
 import { StoredPhoto } from '@/components/StoredPhoto'
+import { Tabs } from '@/components/Tabs'
 import { Button } from '@/components/ui/button'
-import { useBags, type BagSummary } from './api'
+import { FilterBar } from '@/features/search/FilterBar'
+import { activeFilterCount, useUrlFilters } from '@/features/search/filters'
+import { cn } from '@/lib/utils'
+import { useBagSearch, type BagSummary } from './api'
 
-// Search, filters and the Open/All tabs arrive with #9.
 export function BagsPage() {
-  const { data: bags, isPending, isError } = useBags()
+  const { filters, params, update, clear } = useUrlFilters(['tab'])
+  const onlyOpen = params.get('tab') === 'open'
+  const { data: bags, isPending, isError, isPlaceholderData } = useBagSearch(filters, onlyOpen)
+  const filtering = Boolean(filters.q) || activeFilterCount(filters) > 0 || onlyOpen
 
   return (
     <section className="flex flex-col gap-4">
-      <h1 className="text-2xl font-bold">Cafés</h1>
+      <div className="flex items-center justify-between gap-3">
+        <h1 className="text-2xl font-bold">Cafés</h1>
+        <Tabs
+          value={onlyOpen ? 'open' : 'all'}
+          onChange={(tab) => update({ tab: tab === 'open' ? 'open' : undefined })}
+          options={[
+            ['all', 'Todas'],
+            ['open', 'Abiertas'],
+          ]}
+        />
+      </div>
+
+      <FilterBar
+        filters={filters}
+        onChange={update}
+        onClear={clear}
+        placeholder="Buscar por nombre, tostador, origen…"
+        dateLabel="Abierta"
+        showRoast
+      />
+
       {isPending ? (
         <Grid>
           {Array.from({ length: 4 }, (_, i) => (
@@ -22,27 +48,42 @@ export function BagsPage() {
       ) : isError ? (
         <p className="text-muted-foreground">No se pudieron cargar tus bolsas.</p>
       ) : bags.length === 0 ? (
-        <div className="flex flex-col items-start gap-3">
-          <p className="text-muted-foreground">Todavía no registras ninguna bolsa.</p>
-          <Button asChild>
-            <Link to="/new/bag">
-              <Plus /> Abrí una bolsa
-            </Link>
-          </Button>
-        </div>
+        filtering ? (
+          <p className="text-muted-foreground">Ninguna bolsa coincide con la búsqueda.</p>
+        ) : (
+          <div className="flex flex-col items-start gap-3">
+            <p className="text-muted-foreground">Todavía no registras ninguna bolsa.</p>
+            <Button asChild>
+              <Link to="/new/bag">
+                <Plus /> Abrí una bolsa
+              </Link>
+            </Button>
+          </div>
+        )
       ) : (
-        <Grid>
-          {bags.map((bag) => (
-            <BagCard key={bag.id} bag={bag} />
-          ))}
-        </Grid>
+        <>
+          {filtering && (
+            <p className="text-sm text-muted-foreground">
+              {bags.length === 1 ? '1 bolsa' : `${bags.length} bolsas`}
+            </p>
+          )}
+          <Grid className={cn(isPlaceholderData && 'opacity-60')}>
+            {bags.map((bag) => (
+              <BagCard key={bag.id} bag={bag} />
+            ))}
+          </Grid>
+        </>
       )}
     </section>
   )
 }
 
-function Grid({ children }: { children: ReactNode }) {
-  return <div className="grid grid-cols-2 gap-3 md:grid-cols-3 lg:grid-cols-4">{children}</div>
+function Grid({ children, className }: { children: ReactNode; className?: string }) {
+  return (
+    <div className={cn('grid grid-cols-2 gap-3 transition-opacity md:grid-cols-3 lg:grid-cols-4', className)}>
+      {children}
+    </div>
+  )
 }
 
 function BagCard({ bag }: { bag: BagSummary }) {
