@@ -1,5 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import type { Tables, TablesInsert, TablesUpdate } from '@/lib/database.types'
+import { dateRange, type Filters } from '@/features/search/filters'
+import type { Enums, Tables, TablesInsert, TablesUpdate } from '@/lib/database.types'
 import type { ProcessedPhoto } from '@/lib/image'
 import { createWithPhoto, deletePhoto, updateWithPhoto } from '@/lib/photos'
 import { supabase } from '@/lib/supabase'
@@ -9,19 +10,27 @@ export type BagFields = Omit<TablesInsert<'bags'>, 'id' | 'user_id' | 'photo_pat
 
 export const bagKeys = {
   all: ['bags'] as const,
-  list: () => [...bagKeys.all, 'list'] as const,
+  search: (filters: Filters, onlyOpen: boolean) => [...bagKeys.all, 'search', filters, onlyOpen] as const,
   open: () => [...bagKeys.all, 'open'] as const,
   detail: (id: string) => [...bagKeys.all, 'detail', id] as const,
 }
 
-export function useBags() {
+/** "Cafés": text search (accent/typo tolerant, server side) plus filters and sorting. */
+export function useBagSearch(filters: Filters, onlyOpen: boolean) {
   return useQuery({
-    queryKey: bagKeys.list(),
+    queryKey: bagKeys.search(filters, onlyOpen),
+    placeholderData: (previous) => previous, // keep the grid while a new search loads
     queryFn: async () => {
-      const { data, error } = await supabase
-        .from('bag_summary')
-        .select('*')
-        .order('opened_at', { ascending: false })
+      let query = supabase.rpc('search_bags', { q: filters.q }).select('*')
+      if (onlyOpen) query = query.is('finished_at', null)
+      if (filters.process) query = query.eq('process', filters.process as Enums<'process_t'>)
+      if (filters.roast) query = query.eq('roast_level', filters.roast as Enums<'roast_t'>)
+      if (filters.min) query = query.gte('rating', Number(filters.min))
+      const { start, end } = dateRange(filters)
+      if (start) query = query.gte('opened_at', start)
+      if (end) query = query.lt('opened_at', end)
+      if (filters.sort === 'rating') query = query.order('rating', { ascending: false, nullsFirst: false })
+      const { data, error } = await query.order('opened_at', { ascending: false })
       if (error) throw error
       return data
     },

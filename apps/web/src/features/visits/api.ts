@@ -1,5 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import type { Tables, TablesInsert } from '@/lib/database.types'
+import { dateRange, type Filters } from '@/features/search/filters'
+import type { Enums, Tables, TablesInsert } from '@/lib/database.types'
 import type { ProcessedPhoto } from '@/lib/image'
 import { createWithPhoto, deletePhoto, updateWithPhoto } from '@/lib/photos'
 import { supabase } from '@/lib/supabase'
@@ -9,18 +10,24 @@ export type VisitFields = Omit<TablesInsert<'cafe_visits'>, 'id' | 'user_id' | '
 
 export const visitKeys = {
   all: ['visits'] as const,
-  list: () => [...visitKeys.all, 'list'] as const,
+  search: (filters: Filters) => [...visitKeys.all, 'search', filters] as const,
   detail: (id: string) => [...visitKeys.all, 'detail', id] as const,
 }
 
-export function useVisits() {
+/** "Cafeterías": text search plus filters and sorting. */
+export function useVisitSearch(filters: Filters) {
   return useQuery({
-    queryKey: visitKeys.list(),
+    queryKey: visitKeys.search(filters),
+    placeholderData: (previous) => previous,
     queryFn: async () => {
-      const { data, error } = await supabase
-        .from('cafe_visit_summary')
-        .select('*')
-        .order('visited_at', { ascending: false })
+      let query = supabase.rpc('search_cafe_visits', { q: filters.q }).select('*')
+      if (filters.process) query = query.eq('process', filters.process as Enums<'process_t'>)
+      if (filters.min) query = query.gte('rating', Number(filters.min))
+      const { start, end } = dateRange(filters)
+      if (start) query = query.gte('visited_at', start)
+      if (end) query = query.lt('visited_at', end)
+      if (filters.sort === 'rating') query = query.order('rating', { ascending: false, nullsFirst: false })
+      const { data, error } = await query.order('visited_at', { ascending: false })
       if (error) throw error
       return data
     },
