@@ -1,5 +1,5 @@
 // When to ask "¿Ya terminaste esta bolsa?". Tune these once real bag lifetimes are known.
-export const FINISH_PROMPT = {
+const FINISH_PROMPT = {
   /** Ask once a bag has been open this long… */
   openDays: 14,
   /** …or once this long has passed since its last cup (or since opening, with no cups). */

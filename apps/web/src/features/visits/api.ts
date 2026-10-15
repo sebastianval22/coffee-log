@@ -8,7 +8,7 @@ import { supabase } from '@/lib/supabase'
 export type VisitSummary = Tables<'cafe_visit_summary'>
 export type VisitFields = Omit<TablesInsert<'cafe_visits'>, 'id' | 'user_id' | 'photo_path' | 'search' | 'search_text'>
 
-export const visitKeys = {
+const visitKeys = {
   all: ['visits'] as const,
   search: (filters: Filters) => [...visitKeys.all, 'search', filters] as const,
   detail: (id: string) => [...visitKeys.all, 'detail', id] as const,

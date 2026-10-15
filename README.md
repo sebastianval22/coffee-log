@@ -31,4 +31,6 @@ pnpm db:test     # pgTAP tests in supabase/tests (RLS, search, constraints)
 pnpm db:types    # regenerate apps/web/src/lib/database.types.ts after a migration
 ```
 
+App icons are generated from `apps/web/public/logo.svg` with `pnpm --filter web icons` (config in `apps/web/pwa-assets.config.ts`).
+
 Testing on a phone: use the Vercel preview deployment (HTTPS is required for the camera and the service worker).

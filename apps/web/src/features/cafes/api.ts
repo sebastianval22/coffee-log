@@ -3,7 +3,7 @@ import { supabase } from '@/lib/supabase'
 import { normalizeName } from '@/lib/text'
 import { parseCafeInput } from './parseCafeInput'
 
-export const cafesKey = ['cafes'] as const
+const cafesKey = ['cafes'] as const
 
 export function useCafes() {
   return useQuery({

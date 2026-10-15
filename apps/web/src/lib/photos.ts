@@ -11,20 +11,20 @@ import { supabase } from './supabase'
 const BUCKET = 'photos'
 const SIGNED_URL_TTL_SECONDS = 60 * 60
 
-export type PhotoKind = 'bags' | 'visits'
+type PhotoKind = 'bags' | 'visits'
 export type PhotoVariant = 'full' | 'thumb'
 
 /** A new, unique path for a photo of this entity. */
-export function newPhotoPath(userId: string, kind: PhotoKind, entityId: string) {
+function newPhotoPath(userId: string, kind: PhotoKind, entityId: string) {
   return `${userId}/${kind}/${entityId}/${crypto.randomUUID()}/full.jpg`
 }
 
-export function variantPath(photoPath: string, variant: PhotoVariant) {
+function variantPath(photoPath: string, variant: PhotoVariant) {
   return variant === 'full' ? photoPath : photoPath.replace(/full\.jpg$/, 'thumb.jpg')
 }
 
 /** Uploads both sizes and returns the path to store in the row. */
-export async function uploadPhoto(path: string, photo: ProcessedPhoto): Promise<string> {
+async function uploadPhoto(path: string, photo: ProcessedPhoto): Promise<string> {
   const bucket = supabase.storage.from(BUCKET)
   const options = { contentType: 'image/jpeg', cacheControl: '31536000' }
   const results = await Promise.all([
@@ -91,7 +91,7 @@ export async function updateWithPhoto(
   await deletePhoto(currentPath).catch(() => {})
 }
 
-export function signedUrlQueryKey(path: string, variant: PhotoVariant) {
+function signedUrlQueryKey(path: string, variant: PhotoVariant) {
   return ['photo-url', variantPath(path, variant)] as const
 }
 
