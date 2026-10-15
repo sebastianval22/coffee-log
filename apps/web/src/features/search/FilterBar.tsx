@@ -9,6 +9,7 @@ import { cn } from '@/lib/utils'
 import { activeFilterCount, type Filters } from './filters'
 
 const MIN_RATINGS = { '3': '3 o más', '3.5': '3,5 o más', '4': '4 o más', '4.5': '4,5 o más', '5': 'Solo 5' }
+const SORTS = { date: 'Más recientes', rating: 'Mejor rating' }
 const SEARCH_DEBOUNCE_MS = 300
 
 type Props = {
@@ -34,7 +35,7 @@ export function FilterBar({ filters, onChange, onClear, placeholder, dateLabel, 
           variant={open ? 'secondary' : 'outline'}
           onClick={() => setOpen(!open)}
           aria-expanded={open}
-          className="shrink-0"
+          className="h-11 shrink-0 md:h-9"
         >
           <SlidersHorizontal />
           <span className="hidden sm:inline">Filtros</span>
@@ -71,15 +72,13 @@ export function FilterBar({ filters, onChange, onClear, placeholder, dateLabel, 
             />
           </Field>
           <Field label="Ordenar por" htmlFor="f-sort">
-            <select
+            <NativeSelect
               id="f-sort"
-              className="h-9 w-full rounded-md border border-input bg-transparent px-3 text-base shadow-xs md:text-sm"
+              options={SORTS}
+              allowEmpty={false}
               value={filters.sort}
               onChange={(e) => onChange({ sort: e.target.value as Filters['sort'] })}
-            >
-              <option value="date">Más recientes</option>
-              <option value="rating">Mejor rating</option>
-            </select>
+            />
           </Field>
           <Field label={`${dateLabel} desde`} htmlFor="f-from">
             <Input

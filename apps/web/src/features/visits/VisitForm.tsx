@@ -79,7 +79,7 @@ export function VisitForm({ defaultValues, storedPhotoPath, submitLabel, onSubmi
         />
       </Field>
 
-      <div className="grid grid-cols-2 gap-3">
+      <div className="grid gap-3 sm:grid-cols-2">
         <Field label="Qué tomaste" htmlFor="drink" error={errors.drink?.message}>
           <NativeSelect id="drink" options={METHOD_LABELS} {...register('drink')} />
         </Field>

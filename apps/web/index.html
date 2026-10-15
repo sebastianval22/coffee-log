@@ -12,6 +12,39 @@
     <link rel="icon" href="/logo.svg" type="image/svg+xml" />
     <link rel="apple-touch-icon" href="/apple-touch-icon-180x180.png" />
     <title>Coffee Log</title>
+    <style>
+      html.booting #root { visibility: hidden; }
+    </style>
+    <script>
+      // Home-screen launch on iOS: the viewport height and the bottom safe area settle a few
+      // frames after first paint, which nudged the bottom tab bar upward. Keep the app hidden
+      // (the background still shows) until both stop changing.
+      ;(function () {
+        var standalone = navigator.standalone || matchMedia('(display-mode: standalone)').matches
+        if (!standalone) return
+        var root = document.documentElement
+        root.classList.add('booting')
+        document.addEventListener('DOMContentLoaded', function () {
+          var probe = document.createElement('div')
+          probe.style.cssText = 'position:fixed;inset:0;visibility:hidden;pointer-events:none;padding-bottom:env(safe-area-inset-bottom)'
+          document.body.appendChild(probe)
+          var start = performance.now()
+          var last = ''
+          var stableSince = start
+          function tick(now) {
+            var sample = probe.offsetHeight + '/' + getComputedStyle(probe).paddingBottom
+            if (sample !== last) {
+              last = sample
+              stableSince = now
+            }
+            if (now - stableSince < 250 && now - start < 1500) return requestAnimationFrame(tick)
+            probe.remove()
+            root.classList.remove('booting')
+          }
+          requestAnimationFrame(tick)
+        })
+      })()
+    </script>
   </head>
   <body>
     <div id="root"></div>
