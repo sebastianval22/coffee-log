@@ -81,6 +81,13 @@
     text-align: left;
     min-height: 1.5em;
   }
+  /* Installed iOS app: in standalone mode 100vh spans the whole screen, while dvh/svh can
+     leave out a strip; see the viewport note in index.html. */
+  html:is([data-viewport-fix='vh'], [data-viewport-fix='nudge']),
+  html:is([data-viewport-fix='vh'], [data-viewport-fix='nudge']) :is(body, #root) {
+    height: 100vh;
+    min-height: 100vh;
+  }
   body {
     @apply bg-background text-foreground antialiased;
     /* No rubber-band scroll of the whole page; the app shell scrolls its own <main>. */
