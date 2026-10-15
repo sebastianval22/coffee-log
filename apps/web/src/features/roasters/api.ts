@@ -2,7 +2,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { supabase } from '@/lib/supabase'
 import { normalizeName } from '@/lib/text'
 
-export const roastersKey = ['roasters'] as const
+const roastersKey = ['roasters'] as const
 
 export function useRoasters() {
   return useQuery({

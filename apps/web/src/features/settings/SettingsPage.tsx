@@ -2,7 +2,6 @@ import { LogOut } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { useSession } from '@/features/auth/useSession'
 import { supabase } from '@/lib/supabase'
-import { ViewportLab } from './ViewportLab'
 
 // Export (JSON/CSV) lands here in Phase 4.
 export function SettingsPage() {
@@ -21,7 +20,6 @@ export function SettingsPage() {
           <LogOut /> Cerrar sesión
         </Button>
       </div>
-      <ViewportLab />
     </section>
   )
 }

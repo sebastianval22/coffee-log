@@ -11,7 +11,8 @@
     "build": "tsc -b && vite build",
     "lint": "oxlint",
     "preview": "vite preview",
-    "test": "vitest run"
+    "test": "vitest run",
+    "icons": "pwa-assets-generator"
   },
   "dependencies": {
     "@hookform/resolvers": "^5.9.1",

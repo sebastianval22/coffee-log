@@ -1,4 +1,4 @@
-export type DayGroup<T> = { key: string; label: string; items: T[] }
+type DayGroup<T> = { key: string; label: string; items: T[] }
 
 const weekdayDate = new Intl.DateTimeFormat('es-CL', { weekday: 'long', day: 'numeric', month: 'long' })
 const fullDate = new Intl.DateTimeFormat('es-CL', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })

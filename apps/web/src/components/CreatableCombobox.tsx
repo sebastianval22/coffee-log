@@ -13,7 +13,7 @@ import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover
 import { normalizeName } from '@/lib/text'
 import { cn } from '@/lib/utils'
 
-export type ComboboxItem = { id: string; label: string; detail?: string | null }
+type ComboboxItem = { id: string; label: string; detail?: string | null }
 
 // Commas separate name and detail when typing ("La Ciudad, Santiago"); compare them as spaces.
 const searchable = (value: string) => normalizeName(value.replace(/,/g, ' '))

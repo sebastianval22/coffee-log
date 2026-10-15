@@ -6,7 +6,7 @@ import { supabase } from '@/lib/supabase'
 export type Cup = Tables<'cups'>
 export type CupFields = Pick<TablesInsert<'cups'>, 'drunk_at' | 'method' | 'rating' | 'flavor_tags' | 'notes'>
 
-export const cupKeys = {
+const cupKeys = {
   all: ['cups'] as const,
   forBag: (bagId: string) => [...cupKeys.all, 'bag', bagId] as const,
 }
