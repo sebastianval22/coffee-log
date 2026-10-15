@@ -12,37 +12,22 @@
     <link rel="icon" href="/logo.svg" type="image/svg+xml" />
     <link rel="apple-touch-icon" href="/apple-touch-icon-180x180.png" />
     <title>Coffee Log</title>
-    <style>
-      html.booting #root { visibility: hidden; }
-    </style>
     <script>
-      // Home-screen launch on iOS: the viewport height and the bottom safe area settle a few
-      // frames after first paint, which nudged the bottom tab bar upward. Keep the app hidden
-      // (the background still shows) until both stop changing.
+      // iOS home-screen launch: the layout viewport starts short by the bottom safe area and
+      // only grows after the first scroll gesture, so a shell pinned with `inset: 0` left the
+      // tab bar floating above the home indicator. The app owns the whole screen in standalone
+      // mode, so size the shell from the screen instead of the (buggy) viewport.
       ;(function () {
         var standalone = navigator.standalone || matchMedia('(display-mode: standalone)').matches
         if (!standalone) return
-        var root = document.documentElement
-        root.classList.add('booting')
-        document.addEventListener('DOMContentLoaded', function () {
-          var probe = document.createElement('div')
-          probe.style.cssText = 'position:fixed;inset:0;visibility:hidden;pointer-events:none;padding-bottom:env(safe-area-inset-bottom)'
-          document.body.appendChild(probe)
-          var start = performance.now()
-          var last = ''
-          var stableSince = start
-          function tick(now) {
-            var sample = probe.offsetHeight + '/' + getComputedStyle(probe).paddingBottom
-            if (sample !== last) {
-              last = sample
-              stableSince = now
-            }
-            if (now - stableSince < 250 && now - start < 1500) return requestAnimationFrame(tick)
-            probe.remove()
-            root.classList.remove('booting')
-          }
-          requestAnimationFrame(tick)
-        })
+        function update() {
+          var landscape = matchMedia('(orientation: landscape)').matches
+          var h = landscape ? Math.min(screen.width, screen.height) : Math.max(screen.width, screen.height)
+          document.documentElement.style.setProperty('--app-height', h + 'px')
+        }
+        update()
+        addEventListener('resize', update)
+        addEventListener('orientationchange', update)
       })()
     </script>
   </head>
