@@ -3,33 +3,15 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-    <meta name="theme-color" content="#3b2418" />
+    <meta name="theme-color" content="#faf6f1" />
     <meta name="description" content="Registro personal de los cafés que he probado" />
     <meta name="apple-mobile-web-app-capable" content="yes" />
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="default" />
     <meta name="apple-mobile-web-app-title" content="Coffee Log" />
     <link rel="icon" href="/favicon.ico" sizes="48x48" />
     <link rel="icon" href="/logo.svg" type="image/svg+xml" />
     <link rel="apple-touch-icon" href="/apple-touch-icon-180x180.png" />
     <title>Coffee Log</title>
-    <script>
-      // iOS home-screen launch: the layout viewport starts short by the bottom safe area and
-      // only grows after the first scroll gesture, so a shell pinned with `inset: 0` left the
-      // tab bar floating above the home indicator. The app owns the whole screen in standalone
-      // mode, so size the shell from the screen instead of the (buggy) viewport.
-      ;(function () {
-        var standalone = navigator.standalone || matchMedia('(display-mode: standalone)').matches
-        if (!standalone) return
-        function update() {
-          var landscape = matchMedia('(orientation: landscape)').matches
-          var h = landscape ? Math.min(screen.width, screen.height) : Math.max(screen.width, screen.height)
-          document.documentElement.style.setProperty('--app-height', h + 'px')
-        }
-        update()
-        addEventListener('resize', update)
-        addEventListener('orientationchange', update)
-      })()
-    </script>
   </head>
   <body>
     <div id="root"></div>

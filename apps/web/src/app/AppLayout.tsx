@@ -13,9 +13,11 @@ const SETTINGS: NavItem = { to: '/settings', label: 'Ajustes', icon: Settings }
 const NEW: NavItem = { to: '/new', label: 'Registrar', icon: Plus }
 
 /**
- * App shell pinned to the screen: only <main> scrolls. Its height comes from `--app-height`
- * (set in index.html for the installed iOS app, where the launch viewport is too short until
- * the first scroll) and falls back to the dynamic viewport height elsewhere.
+ * App shell pinned to the screen (`fixed inset-0`): only <main> scrolls.
+ *
+ * The installed iOS app uses the "default" status bar, not "black-translucent": with a
+ * translucent bar iOS launches with a viewport one status bar shorter than the screen and
+ * only fixes it after the first scroll, so the tab bar floated (or was clipped) at launch.
  */
 export function AppLayout() {
   const main = useRef<HTMLElement>(null)
@@ -27,7 +29,7 @@ export function AppLayout() {
   }, [pathname])
 
   return (
-    <div className="fixed inset-x-0 top-0 flex h-(--app-height,100dvh) flex-col">
+    <div className="fixed inset-0 flex flex-col">
       <header className="shrink-0 border-b bg-background/95 pt-[env(safe-area-inset-top)] backdrop-blur">
         <div className="mx-auto flex h-14 max-w-6xl items-center gap-6 px-4">
           <Link to="/" className="flex items-center gap-2 font-bold">
