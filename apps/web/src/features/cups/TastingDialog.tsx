@@ -99,7 +99,7 @@ function TastingForm({ bagId, cup, onDone }: { bagId: string; cup?: Cup; onDone:
 
   return (
     <form onSubmit={submit} className="flex flex-col gap-4" noValidate>
-      <div className="grid grid-cols-2 gap-3">
+      <div className="grid gap-3 sm:grid-cols-2">
         <Field label="Cuándo" htmlFor="drunkAt" error={formState.errors.drunkAt?.message}>
           <Input id="drunkAt" type="datetime-local" {...register('drunkAt')} />
         </Field>

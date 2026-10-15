@@ -71,6 +71,16 @@
   #root {
     min-height: 100dvh;
   }
+  /* iOS draws date/time inputs centered, taller and wider than other inputs; line them up. */
+  input[type='date'],
+  input[type='datetime-local'] {
+    appearance: none;
+    text-align: left;
+  }
+  input::-webkit-date-and-time-value {
+    text-align: left;
+    min-height: 1.5em;
+  }
   body {
     @apply bg-background text-foreground antialiased;
     /* No rubber-band scroll of the whole page; the app shell scrolls its own <main>. */

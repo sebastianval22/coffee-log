@@ -72,7 +72,7 @@ export function CreatableCombobox({
             variant="outline"
             role="combobox"
             aria-expanded={open}
-            className="h-10 flex-1 justify-between font-normal"
+            className="h-11 min-w-0 flex-1 justify-between font-normal md:h-9"
           >
             <span className={cn('truncate', !selected && 'text-muted-foreground')}>
               {selected ? selected.label : placeholder}

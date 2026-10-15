@@ -27,24 +27,28 @@ export function Field({
 /** A styled native <select> (the iOS system picker beats a custom popover on the phone). */
 export function NativeSelect({
   options,
+  allowEmpty = true,
   className,
   ...props
-}: ComponentProps<'select'> & { options: Record<string, string> }) {
+}: ComponentProps<'select'> & { options: Record<string, string>; allowEmpty?: boolean }) {
   return (
-    <select
-      className={cn(
-        'h-9 w-full rounded-md border border-input bg-transparent px-3 text-base shadow-xs md:text-sm',
-        className,
-      )}
-      {...props}
-    >
-      <option value="">—</option>
-      {Object.entries(options).map(([value, label]) => (
-        <option key={value} value={value}>
-          {label}
-        </option>
-      ))}
-    </select>
+    <div className="relative">
+      <select
+        className={cn(
+          'h-11 w-full min-w-0 appearance-none truncate rounded-md border border-input bg-transparent pr-8 pl-3 text-base shadow-xs outline-none focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50 md:h-9 md:text-sm',
+          className,
+        )}
+        {...props}
+      >
+        {allowEmpty && <option value="">—</option>}
+        {Object.entries(options).map(([value, label]) => (
+          <option key={value} value={value}>
+            {label}
+          </option>
+        ))}
+      </select>
+      <ChevronDown className="pointer-events-none absolute top-1/2 right-2.5 size-4 -translate-y-1/2 opacity-50" />
+    </div>
   )
 }
 

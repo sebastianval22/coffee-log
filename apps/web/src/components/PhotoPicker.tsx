@@ -44,7 +44,7 @@ export function PhotoPicker({ value, onChange, storedPath, error, className }: P
     <div className={cn('flex flex-col gap-3', className)}>
       <div
         className={cn(
-          'relative aspect-[4/5] w-full overflow-hidden rounded-2xl border bg-muted',
+          'relative mx-auto aspect-[4/5] max-h-[45dvh] w-full overflow-hidden rounded-2xl border bg-muted',
           !hasPhoto && 'border-dashed',
           (error || processError) && 'border-destructive',
         )}
